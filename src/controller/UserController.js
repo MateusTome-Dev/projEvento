@@ -1,21 +1,37 @@
 const User = require("../models/User");
 
-(exports.create = async (req, res) => {
+exports.create= async (req, res) => {
   try {
-    const { nome, email, eventoid } = req.body;
+    const { nome, email, eventoId } = req.body;
 
-    const userCriado = await User.create({ nome, email, eventoid });
+    console.log(nome, email, eventoId);
+
+    const emailsEncontrados = await Participant.findAll({
+      where: { email : email },
+      attributes: ["email"],
+    });
+   
+    if (emailsEncontrados.length > 0) {
+      console.log("Email já existente!!");
+      return res.status(400).json({ msg: "Email já cadastrado!" });
+  }
+
+    const participantCreated = await Participant.create({
+      nome,
+      email,
+      eventoId,
+    });
 
     return res.status(200).json({
-      msg: "Usuario criado com sucesso!",
-      user: userCriado,
+      msg: "Participante Criado!",
+      participant: participantCreated,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ msg: "Acione o Suporte" });
+    return res.status(500).json({ msg: "Acione o suporte!" });
   }
-}),
-  (exports.update = async (req, res) => {
+},
+  exports.update = async (req, res) => {
     try {
       const { id } = req.params;
       const { nome, email, eventoid } = req.body;
@@ -51,8 +67,8 @@ const User = require("../models/User");
       console.error(error);
       return res.status(500).json({ msg: "Acione o Suporte" });
     }
-  }),
-  (exports.getAll = async (req, res) => {
+  },
+  exports.getAll = async (req, res) => {
     try {
       const usuarios = await User.findAll();
       return res.status(200).json({
@@ -63,8 +79,8 @@ const User = require("../models/User");
       console.error(error);
       return res.status(500).json({ msg: "Acione o Suporte" });
     }
-  }),
-  (exports.getOne = async (req, res) => {
+  },
+  exports.getOne = async (req, res) => {
     try {
       const { id } = req.params;
       const usuarioEncontrado = await User.findByPk(id);
@@ -83,8 +99,8 @@ const User = require("../models/User");
       console.error(error);
       return res.status(500).json({ msg: "Acione o Suporte" });
     }
-  }),
-  (exports.delete = async (req, res) => {
+  },
+  exports.delete = async (req, res) => {
     try {
       const { id } = req.params;
 
@@ -105,7 +121,7 @@ const User = require("../models/User");
       console.error(error);
       return res.status(500).json({ msg: "Acione o Suporte" });
     }
-  });
+  };
   exports.getAllParticipantes = async (req, res) => {
     try {
       const { id } = req.params;

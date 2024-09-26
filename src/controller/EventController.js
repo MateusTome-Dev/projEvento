@@ -3,7 +3,6 @@ const Evento = require("../models/evento");
     try {
       const { nome, data, localizacao } = req.body;
 
-
       const eventCriado = await Evento.create({ nome, data, localizacao  });
 
       return res.status(200).json({
@@ -88,23 +87,28 @@ const Evento = require("../models/evento");
 
   exports.delete= async (req, res) => {
     try {
-      const { id } = req.params;
-
-      const eventoFinded = await Evento.findByPk(id);
-
-      if (eventoFinded == null) {
-        return res.status(404).json({
-          msg: "evento nao encontrado",
+        const { id } = req.params;
+        const eventFound = await Evento.findByPk(id);
+        if (eventFound === null) {
+            return res.status(404).json({
+                msg: 'Evento não encontrado'
+            });
+        }
+        await Participante.destroy({
+            where: { eventoId: id }
         });
-      }
-      await eventoFinded.destroy();
 
-      return res.status(200).json({
-        msg: "Evento deletado com sucesso!",
-        evento: eventoFinded,
-      });
+        await Evento.destroy({
+            where: { id: id }
+        });
+       
+        return res.status(200).json({
+            msg: 'Evento deletado com sucesso!'
+        });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ msg: "Acione o Suporte" });
+        console.error(error);
+        return res.status(500).json({
+            msg: 'Acione o suporte.'
+        });
     }
-  }
+}
